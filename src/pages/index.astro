@@ -1,0 +1,484 @@
+---
+import Base from "../layouts/Base.astro";
+import Slat from "../components/Slat.astro";
+
+/* Los cinco distintivos de la columna izquierda. Los tres primeros
+   coinciden con las franjas de la derecha. */
+const distintivos = [
+  { icon: "logistica", label: "Logística" },
+  { icon: "servicios", label: "Servicios" },
+  { icon: "rental-mining", label: "Rental\nMining" },
+  { icon: "maquinaria", label: "Maquinaria" },
+  { icon: "sostenible", label: "Compromiso\nSostenible" },
+];
+
+/* Orden y filo de color según el diseño: verde · blanco · rojo */
+const areas = [
+  {
+    title: "Rental Mining",
+    image: "rental-mining",
+    icon: "rental-mining",
+    edge: "green" as const,
+    description: "Arriendo de maquinaria y equipos con respaldo y mantención.",
+  },
+  {
+    title: "Logística",
+    image: "logistica",
+    icon: "logistica",
+    edge: "white" as const,
+    description: "Transporte de carga para faenas mineras e industriales.",
+  },
+  {
+    title: "Servicios",
+    image: "servicios",
+    icon: "servicios",
+    edge: "red" as const,
+    description: "Movimiento de tierra, áridos y apoyo a la operación en faena.",
+  },
+];
+---
+
+<Base>
+  <div class="stage">
+    <main class="board">
+      <!-- ---------- Fondo: video a lo ancho del tablero ---------- -->
+      <div class="board__media" aria-hidden="true">
+        <video
+          class="board__video"
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="metadata"
+          poster="/img/video-poster.webp"
+        >
+          <source src="/video/GLG_web_Video.mp4" type="video/mp4" />
+        </video>
+        <!-- Difuminado del video hacia el blanco de la columna izquierda -->
+        <div class="board__fade"></div>
+      </div>
+
+      <!-- ---------- Franjas diagonales, a la derecha ----------
+           Las tres están en la primera pantalla, así que ninguna va
+           en lazy: si no, se ve el video por debajo mientras cargan. -->
+      <div class="board__slats">
+        {areas.map((a) => <Slat {...a} eager />)}
+      </div>
+
+      <!-- ---------- Columna de contenido, a la izquierda ---------- -->
+      <div class="board__content">
+        <header class="brand">
+          <img class="brand__mark" src="/img/glg-logo.svg" width="72" height="72" alt="" aria-hidden="true" />
+          <p class="brand__name">Grupo Empresas<br /><strong>Las Garzas</strong></p>
+          <span class="brand__sep" aria-hidden="true"></span>
+          <p class="brand__years">Más de <strong>32 años</strong><br />de experiencia</p>
+        </header>
+
+        <div class="copy">
+          <p class="copy__eyebrow">Portal empresarial</p>
+          <h1 class="copy__title">En renovación</h1>
+          <p class="copy__tagline">Más soluciones para un mejor mañana</p>
+
+          <div class="tricolor" aria-hidden="true"><span></span><span></span><span></span></div>
+
+          <p class="copy__lead">
+            Estamos actualizando nuestro portal para brindarte una mejor
+            experiencia, con más información, nuevas áreas y un acceso más
+            directo a nuestros servicios.
+          </p>
+
+          <ul class="marks">
+            {
+              distintivos.map((d) => (
+                <li class="marks__item">
+                  <img src={`/icons/${d.icon}.svg`} width="64" height="64" alt="" aria-hidden="true" />
+                  <span>{d.label}</span>
+                </li>
+              ))
+            }
+          </ul>
+
+          <p class="badge"><span class="badge__dot" aria-hidden="true"></span>Próximamente</p>
+          <p class="motto">Un mismo grupo, más oportunidades.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+</Base>
+
+<style>
+  /* ===================== Marco y tablero ===================== */
+  .stage {
+    min-height: 100svh;
+    background: var(--glg-ink);
+    padding: clamp(0px, 1.4vw, 22px);
+    display: flex;
+  }
+
+  .board {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    background: #fff;
+    isolation: isolate;
+    display: grid;
+    /* Una sola celda: media, franjas y contenido se apilan por capas */
+    grid-template-areas: "stack";
+  }
+
+  /* Se listan las clases una a una en vez de `.board > *`: Astro añade su
+     atributo de scope también al `*`, lo que sube la especificidad y deja
+     esta regla ganándole a los overrides del media query móvil. */
+  .board__media,
+  .board__slats,
+  .board__content {
+    grid-area: stack;
+    min-width: 0;
+  }
+
+  /* ---------- capa 1: video ---------- */
+  .board__media {
+    position: relative;
+    z-index: 0;
+  }
+
+  .board__video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* El video nace desde el blanco de la izquierda y gana presencia
+     hacia la derecha, igual que en el diseño. */
+  .board__fade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to right,
+      #fff 0%,
+      rgba(255, 255, 255, 0.97) 22%,
+      rgba(255, 255, 255, 0.72) 38%,
+      rgba(255, 255, 255, 0.22) 52%,
+      rgba(255, 255, 255, 0) 64%
+    );
+  }
+
+  /* ---------- capa 2: franjas diagonales ---------- */
+  .board__slats {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-self: end;
+    /* Ancho de la zona de franjas. El resto queda para el texto. */
+    width: 53%;
+    height: 100%;
+    /* Variables que consume Slat.astro */
+    --slant: -11deg;
+    --slat-overlap: 0px;
+    --edge-w: 5px;
+    --label-shift: 4.6vh;
+    /* Al inclinar, cada franja pierde un triángulo arriba y otro abajo.
+       Se ensancha un poco el bloque y se reabsorbe con margen negativo.
+       El fondo oscuro cubre cualquier resto: sin él se asomaría el video
+       por esos triángulos y se leería como un error de recorte. */
+    /* Solo margen negativo, sin padding: el padding volvía a meter las
+       franjas hacia adentro y anulaba la extensión, dejando dos bandas
+       negras a los costados. Así el bloque sí se ensancha y las franjas
+       cubren de borde a borde pese a la inclinación. */
+    margin-inline: -4%;
+  }
+
+  .board__slats :global(.slat) {
+    flex: 1 1 0;
+  }
+
+  /* La última franja se extiende más allá del borde derecho del tablero,
+     así que su centro cae fuera de la zona visible: su rótulo necesita
+     menos corrección que las anteriores, o se sale de pantalla. */
+  .board__slats :global(.slat:last-child) {
+    --label-shift: -0.5vh;
+  }
+
+  /* ---------- capa 3: contenido ---------- */
+  .board__content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    /* No `space-between`: con solo dos hijos empuja el bloque de texto
+       al fondo y deja un vacío enorme bajo el logo. */
+    justify-content: flex-start;
+    gap: clamp(1.5rem, 7vh, 4.5rem);
+    padding: clamp(1.4rem, 3.2vw, 3.4rem);
+    /* No debe tapar las franjas: se limita al costado izquierdo */
+    width: min(52%, 820px);
+    pointer-events: none;
+  }
+
+  .board__content :where(a, button) {
+    pointer-events: auto;
+  }
+
+  /* ===================== Marca ===================== */
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.6rem, 1.2vw, 1rem);
+    flex-wrap: wrap;
+  }
+
+  .brand__mark {
+    width: clamp(46px, 4.4vw, 72px);
+    height: auto;
+  }
+
+  .brand__name {
+    font-size: clamp(0.86rem, 0.6rem + 0.85vw, 1.5rem);
+    line-height: 1.1;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    color: var(--glg-ink);
+    font-weight: 500;
+  }
+  .brand__name strong {
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  .brand__sep {
+    width: 1px;
+    align-self: stretch;
+    min-height: 2.2em;
+    background: rgba(14, 15, 17, 0.22);
+  }
+
+  .brand__years {
+    font-size: clamp(0.66rem, 0.55rem + 0.34vw, 0.92rem);
+    line-height: 1.25;
+    color: rgba(14, 15, 17, 0.62);
+  }
+  .brand__years strong {
+    color: var(--glg-ink);
+    font-weight: 700;
+  }
+
+  /* ===================== Bloque de texto ===================== */
+  .copy {
+    display: grid;
+    gap: clamp(0.5rem, 1.1vh, 0.95rem);
+    justify-items: start;
+    /* Ancho suficiente para que "EN RENOVACIÓN" entre en una sola línea,
+       como en el diseño; con menos, el título se parte en dos. */
+    max-width: min(42rem, 100%);
+  }
+
+  .copy__eyebrow {
+    font-size: clamp(0.95rem, 0.72rem + 0.75vw, 1.55rem);
+    color: rgba(14, 15, 17, 0.78);
+    font-weight: 400;
+  }
+
+  .copy__title {
+    font-size: clamp(1.9rem, 0.8rem + 3.35vw, 4.2rem);
+    line-height: 1;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--glg-ink);
+    /* En pantallas anchas va en una línea; si no cabe, quiebra sola */
+    text-wrap: balance;
+  }
+
+  .copy__tagline {
+    font-size: clamp(0.95rem, 0.7rem + 0.8vw, 1.6rem);
+    color: rgba(14, 15, 17, 0.82);
+    font-weight: 400;
+  }
+
+  .tricolor {
+    width: clamp(150px, 17vw, 300px);
+    height: clamp(9px, 0.9vw, 15px);
+    border-radius: 2px;
+    margin-block: clamp(0.15rem, 0.5vh, 0.5rem);
+  }
+
+  .copy__lead {
+    font-size: clamp(0.78rem, 0.62rem + 0.5vw, 1.08rem);
+    line-height: 1.5;
+    color: rgba(14, 15, 17, 0.78);
+    max-width: min(30rem, 100%);
+  }
+
+  /* ===================== Fila de distintivos ===================== */
+  /* Los cinco distintivos van SIEMPRE en una fila, como en el diseño.
+     Con wrap el quinto caía a una segunda línea y rompía la lectura. */
+  .marks {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: start;
+    gap: clamp(0.35rem, 1.1vw, 1.15rem);
+    margin: clamp(0.2rem, 1vh, 0.7rem) 0 0;
+    padding: 0;
+    list-style: none;
+    width: 100%;
+  }
+
+  .marks__item {
+    display: grid;
+    justify-items: center;
+    gap: 0.35rem;
+    /* flex:1 con min-width:0 deja que los cinco encojan a la par
+       en vez de desbordar o envolverse. */
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 92px;
+    text-align: center;
+    font-size: clamp(0.44rem, 0.36rem + 0.24vw, 0.64rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--glg-ink);
+    white-space: pre-line;
+  }
+
+  .marks__item img {
+    width: clamp(38px, 4vw, 66px);
+    height: auto;
+  }
+
+  /* ===================== Botón y cierre ===================== */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-top: clamp(0.3rem, 1.2vh, 0.9rem);
+    padding: clamp(0.6rem, 1.1vh, 0.95rem) clamp(1.6rem, 2.6vw, 2.6rem);
+    border-radius: 999px;
+    background: var(--glg-green);
+    color: #fff;
+    font-size: clamp(0.9rem, 0.7rem + 0.6vw, 1.4rem);
+    font-weight: 500;
+    box-shadow: 0 8px 26px rgba(45, 138, 72, 0.3);
+  }
+
+  .badge__dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #fff;
+    animation: pulse 2.4s var(--ease) infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  .motto {
+    font-style: italic;
+    font-size: clamp(0.78rem, 0.62rem + 0.45vw, 1.05rem);
+    color: rgba(14, 15, 17, 0.72);
+  }
+
+  /* ===================== Pantallas medianas ===================== */
+  @media (max-width: 1100px) {
+    .board__slats { width: 44%; }
+    .board__content { width: min(64%, 700px); }
+  }
+
+  /* ===================== Móvil: se apila ===================== */
+  @media (max-width: 860px) {
+    .stage {
+      padding: 0;
+      min-height: auto;
+    }
+
+    .board {
+      grid-template-areas:
+        "content"
+        "slats";
+      grid-template-rows: auto auto;
+    }
+
+    .board__media {
+      grid-area: content;
+    }
+
+    .board__content {
+      grid-area: content;
+      width: 100%;
+      padding: clamp(1.5rem, 6vw, 2.5rem);
+      gap: 1.5rem;
+    }
+
+    .board__fade {
+      /* En vertical el degradado va hacia abajo, no hacia el lado */
+      background: linear-gradient(
+        to bottom,
+        #fff 0%,
+        rgba(255, 255, 255, 0.95) 55%,
+        rgba(255, 255, 255, 0.85) 100%
+      );
+    }
+
+    /* Sin diagonales en pantalla angosta: se leen peor y recortan la foto */
+    .board__slats {
+      grid-area: slats;
+      width: 100%;
+      /* La regla base fija height:100%, que en una fila `auto` colapsa
+         el bloque a unos pocos píxeles. Aquí manda el alto de cada franja. */
+      height: auto;
+      --slant: 0deg;
+      --edge-w: 0px;
+      --label-shift: 0px;
+      padding-inline: 0;
+      margin-inline: 0;
+      flex-direction: column;
+      border-top: 5px solid var(--glg-green);
+    }
+
+    .board__slats :global(.slat) {
+      /* `flex:1 1 0` es correcto en fila, pero en columna fija la base en 0
+         y las franjas colapsan a la altura del borde. Aquí manda el alto. */
+      flex: 0 0 auto;
+      height: clamp(230px, 42vw, 320px);
+      border-left: 0;
+      border-bottom: 4px solid var(--edge-color);
+    }
+
+    .board__slats :global(.slat__inner) {
+      width: 100%;
+      left: 0;
+    }
+
+    .copy { max-width: 100%; }
+    .marks { gap: clamp(0.6rem, 3vw, 1.2rem); }
+  }
+
+  /* Sin animación: el video se reemplaza por su primer cuadro */
+  @media (prefers-reduced-motion: reduce) {
+    .board__video { display: none; }
+    .board__media {
+      background-image: url("/img/video-poster.webp");
+      background-size: cover;
+      background-position: center;
+    }
+    .badge__dot { animation: none; }
+  }
+</style>
+
+<script>
+  // `loop` basta normalmente. Este respaldo cubre dos casos reales:
+  // pestañas que pausan el video en segundo plano y navegadores que
+  // rechazan el autoplay inicial pero lo permiten más tarde.
+  const v = document.querySelector<HTMLVideoElement>(".board__video");
+  if (v) {
+    const play = () => v.play().catch(() => { /* denegado: queda el poster */ });
+    v.addEventListener("ended", () => { v.currentTime = 0; play(); });
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden && v.paused) play();
+    });
+  }
+</script>

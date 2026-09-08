@@ -1,0 +1,52 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Dominio canónico del grupo. Todos los dominios sirven el mismo HTML,
+   *  así que sin canonical los buscadores lo leen como contenido duplicado. */
+  canonical?: string;
+  /** El placeholder no debe indexarse ni competir con el sitio definitivo. */
+  noindex?: boolean;
+}
+
+const {
+  title = "Grupo Empresas Las Garzas — Portal en renovación",
+  description =
+    "Estamos renovando nuestro portal. Logística, Servicios y Rental Mining para la minería y la construcción. Más de 32 años de experiencia.",
+  canonical = "https://www.grupolasgarzas.cl/",
+  noindex = true,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="es-CL">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+
+    <meta name="theme-color" content="#0e0f11" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/img/glg-logo.svg" type="image/svg+xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="/img/video-poster.webp" />
+    <meta property="og:locale" content="es_CL" />
+
+    <!-- El poster se muestra mientras el video carga: precargarlo evita
+         el flash de fondo vacío en la primera pintura. -->
+    <link rel="preload" as="image" href="/img/video-poster.webp" />
+  </head>
+
+  <body>
+    <slot />
+  </body>
+</html>

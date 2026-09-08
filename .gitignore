@@ -1,0 +1,27 @@
+node_modules/
+dist/
+.astro/
+build/
+.DS_Store
+*.log
+
+# --- Originales pesados ---------------------------------------------
+# images/ guarda los archivos tal como los entregó el diseñador. Los dos
+# videos suman 174 MB: versionarlos haría el repo inclonable en la práctica
+# y GitHub avisa sobre cualquier archivo de más de 50 MB.
+# Se quedan en disco, pero fuera de git. Respaldarlos en OneDrive/Drive.
+# Lo que se despliega vive en public/ y sí está versionado.
+images/*.mp4
+
+# El PNG de 9 MB tampoco aporta: no se usa en el sitio.
+images/Grupo empresas las garzas (1).png
+
+# --- Gestor de paquetes -----------------------------------------------
+# El proyecto se instala y construye con npm (package-lock.json). Estos
+# archivos de pnpm aparecieron en el directorio pero no corresponden al
+# flujo usado y pnpm-workspace.yaml quedó con valores sin resolver.
+# Se dejan en disco pero fuera del repo para no versionar dos lockfiles
+# en conflicto. Si se decide migrar a pnpm, quitar estas dos líneas y
+# borrar package-lock.json.
+pnpm-lock.yaml
+pnpm-workspace.yaml

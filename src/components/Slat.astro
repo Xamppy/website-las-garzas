@@ -1,0 +1,216 @@
+---
+interface Props {
+  title: string;
+  /** slug de /img/<slug>-slat.webp */
+  image: string;
+  /** slug de /icons/<slug>.svg */
+  icon: string;
+  description: string;
+  /** Color del filo diagonal: verde, blanco o rojo (barra de marca) */
+  edge: "green" | "white" | "red";
+  /** Carga ansiosa: las franjas visibles de entrada no deben ir en lazy,
+   *  o se ve el video por debajo mientras la foto termina de bajar. */
+  eager?: boolean;
+}
+
+const { title, image, icon, description, edge, eager = false } = Astro.props;
+---
+
+<article class={`slat slat--${edge}`} tabindex="0">
+  <!-- El contenido va contra-inclinado para que la foto y el texto
+       salgan rectos dentro de la franja diagonal. -->
+  <div class="slat__inner">
+    <img
+      class="slat__img"
+      src={`/img/${image}-slat.webp`}
+      srcset={`/img/${image}-slat-sm.webp 380w, /img/${image}-slat.webp 760w`}
+      sizes="(max-width: 900px) 100vw, 24vw"
+      width="760"
+      height="1520"
+      alt={title}
+      loading={eager ? "eager" : "lazy"}
+      decoding="async"
+    />
+    <div class="slat__tint"></div>
+
+    <!-- Rótulo en reposo, arriba, como en el diseño -->
+    <h3 class="slat__label">{title}</h3>
+
+    <!-- Panel que sube al pasar el cursor -->
+    <div class="slat__panel">
+      <img class="slat__icon" src={`/icons/${icon}.svg`} width="52" height="52" alt="" aria-hidden="true" />
+      <p class="slat__desc">{description}</p>
+    </div>
+  </div>
+</article>
+
+<style>
+  .slat {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    cursor: pointer;
+    /* Inclinación de la franja. El contenido se contra-inclina abajo. */
+    transform: skewX(var(--slant));
+    /* Se ensancha un poco para que la diagonal no deje huecos en los bordes */
+    margin-inline: calc(var(--slat-overlap) * -1);
+    border-left: var(--edge-w) solid var(--edge-color);
+    transition: flex-grow 480ms var(--ease);
+  }
+
+  .slat--green { --edge-color: var(--glg-green); }
+  .slat--white { --edge-color: #fff; }
+  .slat--red   { --edge-color: var(--glg-red); }
+
+  .slat__inner {
+    position: absolute;
+    /* Ojo: no usar `inset:0` junto con width/left — right:0 seguiría
+       activo y el ancho calculado entra en conflicto. */
+    top: 0;
+    bottom: 0;
+    left: -30%;
+    width: 160%;
+    transform: skewX(calc(var(--slant) * -1));
+  }
+
+  .slat__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 620ms var(--ease), filter 620ms var(--ease);
+  }
+
+  .slat__tint {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(8, 9, 10, 0.78) 0%,
+      rgba(8, 9, 10, 0.18) 40%,
+      rgba(8, 9, 10, 0.35) 100%
+    );
+    transition: opacity 480ms var(--ease);
+  }
+
+  .slat__label {
+    position: absolute;
+    /* A 20 % de la altura, y no pegado al borde: más arriba la diagonal
+       estrecha tanto la franja que la palabra no cabe. */
+    top: 20%;
+    left: 50%;
+    /* Compensación geométrica: con skewX negativo la parte superior de la
+       franja se corre a la derecha, así que un texto centrado se sale por
+       la izquierda. El desvío es (distancia al centro vertical)·tan(11°);
+       en vh queda proporcional a la altura y no hay que recalcularlo. */
+    translate: calc(-50% + var(--label-shift, 7.5vh)) 0;
+    z-index: 2;
+    margin: 0;
+    /* Debe caber "SERVICIOS" (9 caracteres) en una sola línea y dejar
+       quebrar "RENTAL MINING" en dos. */
+    width: min(94%, 15ch);
+    text-align: center;
+    text-wrap: balance;
+    font-size: clamp(0.62rem, 0.52rem + 0.3vw, 0.84rem);
+    font-weight: 750;
+    letter-spacing: 0.045em;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9), 0 0 26px rgba(0, 0, 0, 0.6);
+    transition: opacity 300ms var(--ease), transform 300ms var(--ease);
+  }
+
+  .slat__panel {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 3;
+    min-height: 46%;
+    padding: clamp(0.9rem, 2vh, 1.5rem) clamp(1rem, 2.4vw, 1.7rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.7rem;
+    text-align: center;
+    background: linear-gradient(
+      to top,
+      rgba(8, 9, 10, 0.96) 0%,
+      rgba(8, 9, 10, 0.9) 60%,
+      rgba(8, 9, 10, 0) 100%
+    );
+    transform: translateY(101%);
+    transition: transform 520ms var(--ease);
+  }
+
+  .slat__icon {
+    width: clamp(38px, 3vw, 52px);
+    height: auto;
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 280ms var(--ease) 130ms, transform 280ms var(--ease) 130ms;
+  }
+
+  .slat__desc {
+    margin: 0;
+    font-size: clamp(0.74rem, 0.66rem + 0.28vw, 0.9rem);
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.86);
+    max-width: 22ch;
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 300ms var(--ease) 190ms, transform 300ms var(--ease) 190ms;
+  }
+
+  /* ---------------- hover / teclado ---------------- */
+  @media (hover: hover) {
+    .slat:hover,
+    .slat:focus-visible {
+      flex-grow: 1.35;
+    }
+    .slat:hover .slat__img,
+    .slat:focus-visible .slat__img {
+      transform: scale(1.07);
+    }
+    .slat:hover .slat__label,
+    .slat:focus-visible .slat__label {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    .slat:hover .slat__panel,
+    .slat:focus-visible .slat__panel {
+      transform: translateY(0);
+    }
+    .slat:hover .slat__icon,
+    .slat:focus-visible .slat__icon,
+    .slat:hover .slat__desc,
+    .slat:focus-visible .slat__desc {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* En táctil no hay hover: el detalle va visible y sin animación. */
+  @media (hover: none) {
+    .slat__label { display: none; }
+    .slat__panel { transform: translateY(0); }
+    .slat__icon,
+    .slat__desc {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .slat,
+    .slat__img,
+    .slat__panel,
+    .slat__icon,
+    .slat__desc,
+    .slat__label {
+      transition: none;
+    }
+  }
+</style>
