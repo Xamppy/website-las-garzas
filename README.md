@@ -239,3 +239,4 @@ mantiene. Están en los arreglos `areas` y `distintivos` de
 
 `images/IMG-20251016-WA0048.jpg` (camión y excavadora cargando) quedó
 disponible por si alguna tarjeta debe cambiar de foto.
+# website-las-garzas
