@@ -8,8 +8,7 @@ interface Props {
   description: string;
   /** Color del filo diagonal: verde, blanco o rojo (barra de marca) */
   edge: "green" | "white" | "red";
-  /** Carga ansiosa: las franjas visibles de entrada no deben ir en lazy,
-   *  o se ve el video por debajo mientras la foto termina de bajar. */
+  /** Carga ansiosa: las franjas visibles de entrada no deben ir en lazy */
   eager?: boolean;
 }
 
@@ -17,8 +16,7 @@ const { title, image, icon, description, edge, eager = false } = Astro.props;
 ---
 
 <article class={`slat slat--${edge}`} tabindex="0">
-  <!-- El contenido va contra-inclinado para que la foto y el texto
-       salgan rectos dentro de la franja diagonal. -->
+  <!-- Capa de imagen contra-inclinada para encuadre recto -->
   <div class="slat__inner">
     <img
       class="slat__img"
@@ -32,13 +30,22 @@ const { title, image, icon, description, edge, eager = false } = Astro.props;
       decoding="async"
     />
     <div class="slat__tint"></div>
+  </div>
 
-    <!-- Rótulo en reposo, arriba, como en el diseño -->
-    <h3 class="slat__label">{title}</h3>
+  <!-- Rótulo en reposo: arriba, centrado en la zona visible -->
+  <h3 class="slat__label">{title}</h3>
 
-    <!-- Panel que sube al pasar el cursor -->
-    <div class="slat__panel">
-      <img class="slat__icon" src={`/icons/${icon}.svg`} width="52" height="52" alt="" aria-hidden="true" />
+  <!-- Título en hover: pegado a la línea diagonal izquierda, corriendo hacia arriba -->
+  <div class="slat__hover-title" aria-hidden="true">
+    <span>{title}</span>
+  </div>
+
+  <!-- Panel inferior al hacer hover: ícono y descripción centrados -->
+  <div class="slat__panel">
+    <div class="slat__panel-inner">
+      <div class="slat__icon-wrap">
+        <img class="slat__icon" src={`/icons/${icon}.svg`} width="54" height="54" alt="" aria-hidden="true" />
+      </div>
       <p class="slat__desc">{description}</p>
     </div>
   </div>
@@ -50,27 +57,25 @@ const { title, image, icon, description, edge, eager = false } = Astro.props;
     height: 100%;
     overflow: hidden;
     cursor: pointer;
-    /* Inclinación de la franja. El contenido se contra-inclina abajo. */
     transform: skewX(var(--slant));
-    /* Se ensancha un poco para que la diagonal no deje huecos en los bordes */
-    margin-inline: calc(var(--slat-overlap) * -1);
-    border-left: var(--edge-w) solid var(--edge-color);
-    transition: flex-grow 480ms var(--ease);
+    margin-inline: calc(var(--slat-overlap, 0px) * -1);
+    border-left: var(--edge-w, 5px) solid var(--edge-color);
+    transition: flex-grow 520ms var(--ease);
+    isolation: isolate;
   }
 
   .slat--green { --edge-color: var(--glg-green); }
-  .slat--white { --edge-color: #fff; }
+  .slat--white { --edge-color: #ffffff; }
   .slat--red   { --edge-color: var(--glg-red); }
 
   .slat__inner {
     position: absolute;
-    /* Ojo: no usar `inset:0` junto con width/left — right:0 seguiría
-       activo y el ancho calculado entra en conflicto. */
     top: 0;
     bottom: 0;
     left: -30%;
     width: 160%;
     transform: skewX(calc(var(--slant) * -1));
+    z-index: 1;
   }
 
   .slat__img {
@@ -79,6 +84,7 @@ const { title, image, icon, description, edge, eager = false } = Astro.props;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center 38%;
     transition: transform 620ms var(--ease), filter 620ms var(--ease);
   }
 
@@ -87,119 +93,157 @@ const { title, image, icon, description, edge, eager = false } = Astro.props;
     inset: 0;
     background: linear-gradient(
       to top,
-      rgba(8, 9, 10, 0.78) 0%,
-      rgba(8, 9, 10, 0.18) 40%,
-      rgba(8, 9, 10, 0.35) 100%
+      rgba(8, 9, 10, 0.65) 0%,
+      rgba(8, 9, 10, 0.08) 40%,
+      rgba(8, 9, 10, 0.22) 100%
     );
     transition: opacity 480ms var(--ease);
   }
 
+  /* Rótulo en reposo: centrado arriba */
   .slat__label {
     position: absolute;
-    /* A 20 % de la altura, y no pegado al borde: más arriba la diagonal
-       estrecha tanto la franja que la palabra no cabe. */
-    top: 20%;
+    top: 14%;
     left: 50%;
-    /* Compensación geométrica: con skewX negativo la parte superior de la
-       franja se corre a la derecha, así que un texto centrado se sale por
-       la izquierda. El desvío es (distancia al centro vertical)·tan(11°);
-       en vh queda proporcional a la altura y no hay que recalcularlo. */
-    translate: calc(-50% + var(--label-shift, 7.5vh)) 0;
-    z-index: 2;
+    translate: -50% 0;
+    transform: skewX(calc(var(--slant) * -1));
+    z-index: 3;
     margin: 0;
-    /* Debe caber "SERVICIOS" (9 caracteres) en una sola línea y dejar
-       quebrar "RENTAL MINING" en dos. */
-    width: min(94%, 15ch);
+    width: max-content;
+    max-width: 90%;
     text-align: center;
-    text-wrap: balance;
-    font-size: clamp(0.62rem, 0.52rem + 0.3vw, 0.84rem);
+    font-size: clamp(0.72rem, 0.58rem + 0.32vw, 0.95rem);
     font-weight: 750;
-    letter-spacing: 0.045em;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
     color: #fff;
-    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9), 0 0 26px rgba(0, 0, 0, 0.6);
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.95), 0 0 24px rgba(0, 0, 0, 0.7);
     transition: opacity 300ms var(--ease), transform 300ms var(--ease);
+    pointer-events: none;
+    white-space: nowrap;
   }
 
+  /* Ajuste de posición del label para que no se corte en los extremos */
+  :global(.slat:last-child) .slat__label {
+    left: 42%;
+  }
+
+  :global(.slat:first-child) .slat__label {
+    left: 54%;
+  }
+
+  /* Título en hover: pegado a la línea diagonal izquierda */
+  .slat__hover-title {
+    position: absolute;
+    left: clamp(16px, 1.6vw, 26px);
+    top: 54%;
+    transform-origin: 0 0;
+    transform: rotate(-90deg);
+    z-index: 5;
+    pointer-events: none;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 350ms var(--ease), transform 350ms var(--ease);
+  }
+
+  .slat__hover-title span {
+    display: inline-block;
+    font-size: clamp(1.4rem, 1rem + 1.4vw, 2.5rem);
+    font-weight: 800;
+    letter-spacing: 0.035em;
+    text-transform: uppercase;
+    color: #ffffff;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.95), 0 0 28px rgba(0, 0, 0, 0.85);
+  }
+
+  /* Panel inferior: ícono y descripción centrados */
   .slat__panel {
     position: absolute;
     inset-inline: 0;
     bottom: 0;
-    z-index: 3;
-    min-height: 46%;
-    padding: clamp(0.9rem, 2vh, 1.5rem) clamp(1rem, 2.4vw, 1.7rem);
+    z-index: 4;
+    padding: clamp(1.4rem, 3.4vh, 2.4rem) clamp(0.7rem, 1.6vw, 1.4rem) clamp(1.2rem, 2.6vh, 1.8rem);
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    gap: 0.7rem;
-    text-align: center;
+    justify-content: flex-end;
     background: linear-gradient(
       to top,
-      rgba(8, 9, 10, 0.96) 0%,
-      rgba(8, 9, 10, 0.9) 60%,
-      rgba(8, 9, 10, 0) 100%
+      rgba(4, 5, 7, 0.92) 0%,
+      rgba(4, 5, 7, 0.6) 55%,
+      rgba(4, 5, 7, 0) 100%
     );
-    transform: translateY(101%);
-    transition: transform 520ms var(--ease);
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 400ms var(--ease), transform 400ms var(--ease);
+    pointer-events: none;
+  }
+
+  .slat__panel-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.55rem;
+    width: 100%;
+    transform: skewX(calc(var(--slant) * -1));
+  }
+
+  .slat__icon-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .slat__icon {
-    width: clamp(38px, 3vw, 52px);
+    width: clamp(42px, 3.2vw, 54px);
     height: auto;
-    opacity: 0;
-    transform: translateY(14px);
-    transition: opacity 280ms var(--ease) 130ms, transform 280ms var(--ease) 130ms;
+    filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.6));
   }
 
   .slat__desc {
     margin: 0;
-    font-size: clamp(0.74rem, 0.66rem + 0.28vw, 0.9rem);
-    line-height: 1.45;
-    color: rgba(255, 255, 255, 0.86);
-    max-width: 22ch;
-    opacity: 0;
-    transform: translateY(14px);
-    transition: opacity 300ms var(--ease) 190ms, transform 300ms var(--ease) 190ms;
+    font-size: clamp(0.72rem, 0.64rem + 0.24vw, 0.88rem);
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.92);
+    max-width: 24ch;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
   }
 
-  /* ---------------- hover / teclado ---------------- */
+  /* ---------------- Interacción Hover y Teclado ---------------- */
   @media (hover: hover) {
     .slat:hover,
     .slat:focus-visible {
-      flex-grow: 1.35;
+      flex-grow: 1.38;
     }
     .slat:hover .slat__img,
     .slat:focus-visible .slat__img {
-      transform: scale(1.07);
+      transform: scale(1.06);
     }
     .slat:hover .slat__label,
     .slat:focus-visible .slat__label {
       opacity: 0;
-      transform: translateY(-8px);
+      transform: skewX(calc(var(--slant) * -1)) translateY(-8px);
+    }
+    .slat:hover .slat__hover-title,
+    .slat:focus-visible .slat__hover-title {
+      opacity: 1;
+      transform: rotate(-90deg) translateX(5px);
     }
     .slat:hover .slat__panel,
     .slat:focus-visible .slat__panel {
-      transform: translateY(0);
-    }
-    .slat:hover .slat__icon,
-    .slat:focus-visible .slat__icon,
-    .slat:hover .slat__desc,
-    .slat:focus-visible .slat__desc {
       opacity: 1;
       transform: translateY(0);
     }
   }
 
-  /* En táctil no hay hover: el detalle va visible y sin animación. */
+  /* En pantallas táctiles sin hover */
   @media (hover: none) {
     .slat__label { display: none; }
-    .slat__panel { transform: translateY(0); }
-    .slat__icon,
-    .slat__desc {
+    .slat__hover-title { display: none; }
+    .slat__panel {
       opacity: 1;
-      transform: none;
-      transition: none;
+      transform: translateY(0);
     }
   }
 
@@ -207,8 +251,7 @@ const { title, image, icon, description, edge, eager = false } = Astro.props;
     .slat,
     .slat__img,
     .slat__panel,
-    .slat__icon,
-    .slat__desc,
+    .slat__hover-title,
     .slat__label {
       transition: none;
     }
