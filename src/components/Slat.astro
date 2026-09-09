@@ -35,7 +35,7 @@ const { title, image, icon, description, edge, eager = false } = Astro.props;
   <!-- Rótulo en reposo: arriba, centrado en la zona visible -->
   <h3 class="slat__label">{title}</h3>
 
-  <!-- Título en hover: pegado a la línea diagonal izquierda, corriendo hacia arriba -->
+  <!-- Título en hover: orientado a lo largo de la diagonal, fuente destacada y sin cortes -->
   <div class="slat__hover-title" aria-hidden="true">
     <span>{title}</span>
   </div>
@@ -118,7 +118,7 @@ const { title, image, icon, description, edge, eager = false } = Astro.props;
     text-transform: uppercase;
     color: #fff;
     text-shadow: 0 2px 12px rgba(0, 0, 0, 0.95), 0 0 24px rgba(0, 0, 0, 0.7);
-    transition: opacity 300ms var(--ease), transform 300ms var(--ease);
+    transition: opacity 250ms var(--ease), transform 250ms var(--ease), visibility 250ms;
     pointer-events: none;
     white-space: nowrap;
   }
@@ -132,13 +132,13 @@ const { title, image, icon, description, edge, eager = false } = Astro.props;
     left: 54%;
   }
 
-  /* Título en hover: pegado a la línea diagonal izquierda */
+  /* Título en hover: fuente amplia, posicionado con margen inferior para despejar la parte superior */
   .slat__hover-title {
     position: absolute;
-    left: clamp(16px, 1.6vw, 26px);
-    top: 54%;
+    left: clamp(38px, 3.4vw, 64px);
+    top: 64%;
     transform-origin: 0 0;
-    transform: rotate(-90deg);
+    transform: rotate(-90deg) translateY(-8px);
     z-index: 5;
     pointer-events: none;
     white-space: nowrap;
@@ -148,7 +148,7 @@ const { title, image, icon, description, edge, eager = false } = Astro.props;
 
   .slat__hover-title span {
     display: inline-block;
-    font-size: clamp(1.4rem, 1rem + 1.4vw, 2.5rem);
+    font-size: clamp(1.35rem, 0.95rem + 1.25vw, 2.35rem);
     font-weight: 800;
     letter-spacing: 0.035em;
     text-transform: uppercase;
@@ -162,7 +162,7 @@ const { title, image, icon, description, edge, eager = false } = Astro.props;
     inset-inline: 0;
     bottom: 0;
     z-index: 4;
-    padding: clamp(1.4rem, 3.4vh, 2.4rem) clamp(0.7rem, 1.6vw, 1.4rem) clamp(1.2rem, 2.6vh, 1.8rem);
+    padding: clamp(1.2rem, 3.2vh, 2.2rem) clamp(0.7rem, 1.6vw, 1.4rem) clamp(1rem, 2.4vh, 1.6rem);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -196,18 +196,42 @@ const { title, image, icon, description, edge, eager = false } = Astro.props;
   }
 
   .slat__icon {
-    width: clamp(42px, 3.2vw, 54px);
+    width: clamp(38px, 3vw, 52px);
     height: auto;
     filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.6));
   }
 
   .slat__desc {
     margin: 0;
-    font-size: clamp(0.72rem, 0.64rem + 0.24vw, 0.88rem);
-    line-height: 1.4;
+    font-size: clamp(0.7rem, 0.62rem + 0.22vw, 0.86rem);
+    line-height: 1.38;
     color: rgba(255, 255, 255, 0.92);
     max-width: 24ch;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
+  }
+
+  /* ---------------- Adaptabilidad para escala de 125% y pantallas compactas ---------------- */
+  @media (max-height: 860px) {
+    .slat__hover-title {
+      top: 65%;
+      left: clamp(34px, 3vw, 52px);
+    }
+    .slat__hover-title span {
+      font-size: clamp(1.2rem, 3.8vh, 1.95rem);
+    }
+  }
+
+  @media (max-height: 720px) {
+    .slat__hover-title {
+      top: 66%;
+      left: clamp(28px, 2.6vw, 42px);
+    }
+    .slat__hover-title span {
+      font-size: clamp(1.1rem, 3.6vh, 1.65rem);
+    }
+    .slat__panel {
+      padding-bottom: 0.8rem;
+    }
   }
 
   /* ---------------- Interacción Hover y Teclado ---------------- */
@@ -223,12 +247,13 @@ const { title, image, icon, description, edge, eager = false } = Astro.props;
     .slat:hover .slat__label,
     .slat:focus-visible .slat__label {
       opacity: 0;
+      visibility: hidden;
       transform: skewX(calc(var(--slant) * -1)) translateY(-8px);
     }
     .slat:hover .slat__hover-title,
     .slat:focus-visible .slat__hover-title {
       opacity: 1;
-      transform: rotate(-90deg) translateX(5px);
+      transform: rotate(-90deg) translateY(0);
     }
     .slat:hover .slat__panel,
     .slat:focus-visible .slat__panel {
