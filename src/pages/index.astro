@@ -74,57 +74,60 @@ const footerFeatures = [
         </div>
       </header>
 
-      <!-- ---------- Fondo: video a lo ancho del tablero ---------- -->
-      <div class="board__media" aria-hidden="true">
-        <video
-          class="board__video"
-          autoplay
-          muted
-          loop
-          playsinline
-          preload="metadata"
-          poster="/img/video-poster.webp"
-        >
-          <source src="/video/GLG_web_Video.mp4" type="video/mp4" />
-        </video>
-        <!-- Difuminado suave desde el blanco para que el video sea plenamente visible -->
-        <div class="board__fade"></div>
-      </div>
+      <!-- ---------- Hero principal: video y portal empresarial ---------- -->
+      <section class="board__hero">
+        <!-- Fondo de video a lo ancho -->
+        <div class="board__media" aria-hidden="true">
+          <video
+            class="board__video"
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            poster="/img/video-poster.webp"
+          >
+            <source src="/video/GLG_web_Video.mp4" type="video/mp4" />
+          </video>
+          <!-- Difuminado del video hacia el blanco del contenido -->
+          <div class="board__fade"></div>
+        </div>
 
-      <!-- ---------- Franjas diagonales (altura delimitada bajo el navbar) ---------- -->
+        <!-- Columna de contenido: en móvil aparece de inmediato tras el navbar -->
+        <div class="board__content">
+          <div class="copy">
+            <p class="copy__eyebrow">Portal empresarial</p>
+            <h1 class="copy__title">En renovación</h1>
+            <p class="copy__tagline">Más soluciones para un mejor mañana</p>
+
+            <div class="tricolor" aria-hidden="true"><span></span><span></span><span></span></div>
+
+            <p class="copy__lead">
+              Estamos actualizando nuestro portal para brindarte una mejor
+              experiencia, con más información, nuevas áreas y un acceso más
+              directo a nuestros servicios.
+            </p>
+
+            <ul class="marks">
+              {
+                distintivos.map((d) => (
+                  <li class="marks__item">
+                    <img src={`/icons/${d.icon}.svg`} width="64" height="64" alt="" aria-hidden="true" />
+                    <span>{d.label}</span>
+                  </li>
+                ))
+              }
+            </ul>
+
+            <p class="badge"><span class="badge__dot" aria-hidden="true"></span>Próximamente</p>
+            <p class="motto">Un mismo grupo, más oportunidades.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- Franjas diagonales (en móvil aparecen después del contenido) ---------- -->
       <div class="board__slats">
         {areas.map((a) => <Slat {...a} eager />)}
-      </div>
-
-      <!-- ---------- Columna de contenido, a la izquierda ---------- -->
-      <div class="board__content">
-        <div class="copy">
-          <p class="copy__eyebrow">Portal empresarial</p>
-          <h1 class="copy__title">En renovación</h1>
-          <p class="copy__tagline">Más soluciones para un mejor mañana</p>
-
-          <div class="tricolor" aria-hidden="true"><span></span><span></span><span></span></div>
-
-          <p class="copy__lead">
-            Estamos actualizando nuestro portal para brindarte una mejor
-            experiencia, con más información, nuevas áreas y un acceso más
-            directo a nuestros servicios.
-          </p>
-
-          <ul class="marks">
-            {
-              distintivos.map((d) => (
-                <li class="marks__item">
-                  <img src={`/icons/${d.icon}.svg`} width="64" height="64" alt="" aria-hidden="true" />
-                  <span>{d.label}</span>
-                </li>
-              ))
-            }
-          </ul>
-
-          <p class="badge"><span class="badge__dot" aria-hidden="true"></span>Próximamente</p>
-          <p class="motto">Un mismo grupo, más oportunidades.</p>
-        </div>
       </div>
 
       <!-- ---------- Footer negro inferior amplio y visible ---------- -->
@@ -248,6 +251,14 @@ const footerFeatures = [
     font-weight: 700;
   }
 
+  /* ===================== Hero (en escritorio abarca toda la pantalla) ===================== */
+  .board__hero {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+
   /* ===================== Video y difuminado ===================== */
   .board__media {
     position: absolute;
@@ -276,26 +287,6 @@ const footerFeatures = [
     );
   }
 
-  /* ===================== Franjas diagonales ===================== */
-  /* Comienzan bajo el navbar y terminan sobre el footer; sin margen negativo que corte Servicios */
-  .board__slats {
-    position: absolute;
-    top: var(--nav-h);
-    bottom: var(--footer-h);
-    right: 0;
-    z-index: 2;
-    display: flex;
-    width: 50%;
-    --slant: -11deg;
-    --slat-overlap: 0px;
-    --edge-w: 5px;
-    margin-right: 0;
-  }
-
-  .board__slats :global(.slat) {
-    flex: 1 1 0;
-  }
-
   /* ===================== Columna de contenido ===================== */
   .board__content {
     position: absolute;
@@ -313,6 +304,25 @@ const footerFeatures = [
 
   .board__content :where(a, button) {
     pointer-events: auto;
+  }
+
+  /* ===================== Franjas diagonales ===================== */
+  .board__slats {
+    position: absolute;
+    top: var(--nav-h);
+    bottom: var(--footer-h);
+    right: 0;
+    z-index: 2;
+    display: flex;
+    width: 50%;
+    --slant: -11deg;
+    --slat-overlap: 0px;
+    --edge-w: 5px;
+    margin-right: 0;
+  }
+
+  .board__slats :global(.slat) {
+    flex: 1 1 0;
   }
 
   /* ===================== Bloque de texto ===================== */
@@ -423,8 +433,10 @@ const footerFeatures = [
 
   .motto {
     font-style: italic;
-    font-size: clamp(0.72rem, 0.58rem + 0.38vw, 0.96rem);
-    color: rgba(14, 15, 17, 0.72);
+    font-weight: 600;
+    font-size: clamp(0.78rem, 0.64rem + 0.4vw, 1.05rem);
+    color: var(--glg-ink);
+    text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9), 0 0 10px #ffffff;
   }
 
   /* ===================== Footer negro inferior ===================== */
@@ -510,7 +522,7 @@ const footerFeatures = [
     .footer__features { gap: 1.2rem; }
   }
 
-  /* ===================== Móvil: se apila con scroll ===================== */
+  /* ===================== Móvil: se apila con scroll ordenado ===================== */
   @media (max-width: 860px) {
     .stage {
       height: auto;
@@ -523,6 +535,7 @@ const footerFeatures = [
       flex-direction: column;
       height: auto;
       min-height: 100svh;
+      position: relative;
     }
 
     .navbar {
@@ -530,19 +543,44 @@ const footerFeatures = [
       height: auto;
       padding: 1.2rem 1.4rem;
       background: #ffffff;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      z-index: 10;
+    }
+
+    /* En móvil el hero contiene el video y el contenido con altura adaptada */
+    .board__hero {
+      position: relative;
+      inset: auto;
+      width: 100%;
+      min-height: auto;
+      z-index: 1;
+      overflow: hidden;
     }
 
     .board__media {
       position: absolute;
-      height: 400px;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    .board__video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 30%;
     }
 
     .board__fade {
       background: linear-gradient(
         to bottom,
-        #fff 0%,
-        rgba(255, 255, 255, 0.95) 55%,
-        rgba(255, 255, 255, 0.85) 100%
+        #ffffff 0%,
+        rgba(255, 255, 255, 0.96) 25%,
+        rgba(255, 255, 255, 0.9) 50%,
+        rgba(255, 255, 255, 0.52) 75%,
+        rgba(255, 255, 255, 0.22) 88%,
+        rgba(255, 255, 255, 0.75) 100%
       );
     }
 
@@ -550,11 +588,14 @@ const footerFeatures = [
       position: relative;
       top: auto;
       bottom: auto;
+      left: auto;
       width: 100%;
-      padding: 1.5rem;
+      padding: 2rem 1.4rem 2.8rem;
       pointer-events: auto;
+      z-index: 2;
     }
 
+    /* Las franjas van después del hero (después del texto) */
     .board__slats {
       position: relative;
       top: auto;
@@ -567,6 +608,7 @@ const footerFeatures = [
       margin-right: 0;
       flex-direction: column;
       border-top: 4px solid var(--glg-green);
+      z-index: 3;
     }
 
     .board__slats :global(.slat) {
@@ -583,11 +625,15 @@ const footerFeatures = [
 
     .footer {
       position: relative;
+      bottom: auto;
+      left: auto;
+      right: auto;
       height: auto;
       padding: 2rem 1.4rem;
       flex-direction: column;
       gap: 1.8rem;
       align-items: flex-start;
+      z-index: 4;
     }
 
     .footer__features {
@@ -603,6 +649,14 @@ const footerFeatures = [
 
     .copy { max-width: 100%; }
     .marks { gap: clamp(0.5rem, 2.5vw, 1rem); }
+    .motto {
+      font-weight: 750;
+      font-size: 0.95rem;
+      color: #0e0f11;
+      text-shadow: 0 1px 3px #ffffff, 0 0 10px #ffffff, 0 0 18px rgba(255, 255, 255, 0.95);
+      letter-spacing: 0.01em;
+      margin-top: 0.25rem;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -624,5 +678,7 @@ const footerFeatures = [
     document.addEventListener("visibilitychange", () => {
       if (!document.hidden && v.paused) play();
     });
+    play();
+    window.addEventListener("touchstart", () => { if (v.paused) play(); }, { once: true });
   }
 </script>
