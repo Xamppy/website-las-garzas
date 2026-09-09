@@ -16,7 +16,7 @@ const { title, image, icon, description, edge, eager = false } = Astro.props;
 ---
 
 <article class={`slat slat--${edge}`} tabindex="0">
-  <!-- Capa de imagen contra-inclinada para encuadre recto -->
+  <!-- Capa de imagen contra-inclinada con degradado de abajo hacia arriba -->
   <div class="slat__inner">
     <img
       class="slat__img"
@@ -59,7 +59,6 @@ const { title, image, icon, description, edge, eager = false } = Astro.props;
     cursor: pointer;
     transform: skewX(var(--slant));
     margin-inline: calc(var(--slat-overlap, 0px) * -1);
-    border-left: var(--edge-w, 5px) solid var(--edge-color);
     transition: flex-grow 520ms var(--ease);
     isolation: isolate;
   }
@@ -68,6 +67,28 @@ const { title, image, icon, description, edge, eager = false } = Astro.props;
   .slat--white { --edge-color: #ffffff; }
   .slat--red   { --edge-color: var(--glg-red); }
 
+  /* Franja diagonal: extremos delgados y centro más grueso como en el diseño original */
+  .slat::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 10px;
+    background: var(--edge-color);
+    clip-path: polygon(
+      0 0,
+      2px 0,
+      7px 50%,
+      2px 100%,
+      0 100%
+    );
+    z-index: 6;
+    pointer-events: none;
+    filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.35));
+  }
+
+  /* Capa de imagen con degradado de abajo hacia arriba (100% a 0%) */
   .slat__inner {
     position: absolute;
     top: 0;
@@ -76,6 +97,23 @@ const { title, image, icon, description, edge, eager = false } = Astro.props;
     width: 160%;
     transform: skewX(calc(var(--slant) * -1));
     z-index: 1;
+    mask-image: linear-gradient(
+      to top,
+      #000000 0%,
+      #000000 30%,
+      rgba(0, 0, 0, 0.75) 52%,
+      rgba(0, 0, 0, 0.25) 74%,
+      rgba(0, 0, 0, 0) 92%
+    );
+    -webkit-mask-image: linear-gradient(
+      to top,
+      #000000 0%,
+      #000000 30%,
+      rgba(0, 0, 0, 0.75) 52%,
+      rgba(0, 0, 0, 0.25) 74%,
+      rgba(0, 0, 0, 0) 92%
+    );
+    transition: mask-image 520ms var(--ease), -webkit-mask-image 520ms var(--ease);
   }
 
   .slat__img {
@@ -93,14 +131,14 @@ const { title, image, icon, description, edge, eager = false } = Astro.props;
     inset: 0;
     background: linear-gradient(
       to top,
-      rgba(8, 9, 10, 0.65) 0%,
-      rgba(8, 9, 10, 0.08) 40%,
-      rgba(8, 9, 10, 0.22) 100%
+      rgba(8, 9, 10, 0.5) 0%,
+      rgba(8, 9, 10, 0.05) 40%,
+      rgba(8, 9, 10, 0) 100%
     );
     transition: opacity 480ms var(--ease);
   }
 
-  /* Rótulo en reposo: centrado arriba */
+  /* Rótulo en reposo: arriba, centrado en la zona visible */
   .slat__label {
     position: absolute;
     top: 14%;
@@ -244,6 +282,25 @@ const { title, image, icon, description, edge, eager = false } = Astro.props;
     .slat:focus-visible .slat__img {
       transform: scale(1.06);
     }
+    .slat:hover .slat__inner,
+    .slat:focus-visible .slat__inner {
+      mask-image: linear-gradient(
+        to top,
+        #000000 0%,
+        #000000 48%,
+        rgba(0, 0, 0, 0.9) 66%,
+        rgba(0, 0, 0, 0.45) 84%,
+        rgba(0, 0, 0, 0) 98%
+      );
+      -webkit-mask-image: linear-gradient(
+        to top,
+        #000000 0%,
+        #000000 48%,
+        rgba(0, 0, 0, 0.9) 66%,
+        rgba(0, 0, 0, 0.45) 84%,
+        rgba(0, 0, 0, 0) 98%
+      );
+    }
     .slat:hover .slat__label,
     .slat:focus-visible .slat__label {
       opacity: 0;
@@ -262,8 +319,17 @@ const { title, image, icon, description, edge, eager = false } = Astro.props;
     }
   }
 
-  /* ---------------- Versión Móvil y Táctil ---------------- */
-  @media (max-width: 860px), (hover: none) {
+  /* ---------------- Versión Móvil ---------------- */
+  @media (max-width: 860px) {
+    .slat::before {
+      display: none !important;
+    }
+
+    .slat__inner {
+      mask-image: none !important;
+      -webkit-mask-image: none !important;
+    }
+
     .slat__label {
       display: block !important;
       opacity: 1 !important;

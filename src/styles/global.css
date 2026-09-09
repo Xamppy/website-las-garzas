@@ -88,12 +88,19 @@ a {
   min-width: 0;
 }
 
-/* Barra tricolor de la marca (verde / blanco / rojo) */
+/* Barra tricolor de la marca (verde / blanco / rojo) con extremos delgados y centro más grueso */
 .tricolor {
   display: flex;
-  height: 5px;
-  width: clamp(180px, 22vw, 260px);
-  border-radius: 3px;
+  height: clamp(8px, 0.9vw, 14px);
+  width: clamp(170px, 20vw, 280px);
+  clip-path: polygon(
+    0% 32%,
+    50% 0%,
+    100% 32%,
+    100% 68%,
+    50% 100%,
+    0% 68%
+  );
   overflow: hidden;
 }
 .tricolor span {

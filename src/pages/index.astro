@@ -189,7 +189,7 @@ const footerFeatures = [
   /* ===================== Navbar blanco superior ===================== */
   .navbar {
     position: absolute;
-    top: 0;
+    top: clamp(14px, 2.2vh, 26px);
     left: 0;
     right: 0;
     height: var(--nav-h);
@@ -199,13 +199,15 @@ const footerFeatures = [
     padding-inline: clamp(1.4rem, 3.2vw, 3.4rem);
     background: linear-gradient(
       to right,
-      #ffffff 0%,
-      #ffffff 48%,
-      rgba(255, 255, 255, 0.94) 58%,
-      rgba(255, 255, 255, 0) 75%
+      rgba(255, 255, 255, 0.96) 0%,
+      rgba(255, 255, 255, 0.94) 40%,
+      rgba(255, 255, 255, 0.82) 65%,
+      rgba(255, 255, 255, 0.72) 100%
     );
-    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     pointer-events: none;
   }
 
@@ -356,10 +358,17 @@ const footerFeatures = [
   }
 
   .tricolor {
-    width: clamp(140px, 16vw, 270px);
-    height: clamp(7px, 0.8vw, 13px);
-    border-radius: 2px;
-    margin-block: clamp(0.1rem, 0.35vh, 0.35rem);
+    width: clamp(160px, 18vw, 290px);
+    height: clamp(9px, 1vw, 15px);
+    clip-path: polygon(
+      0% 32%,
+      50% 0%,
+      100% 32%,
+      100% 68%,
+      50% 100%,
+      0% 68%
+    );
+    margin-block: clamp(0.12rem, 0.4vh, 0.45rem);
   }
 
   .copy__lead {
@@ -509,10 +518,17 @@ const footerFeatures = [
   }
 
   .footer__tricolor {
-    width: clamp(150px, 15vw, 240px);
-    height: 5px;
-    margin-top: 5px;
-    border-radius: 2px;
+    width: clamp(160px, 16vw, 250px);
+    height: 7px;
+    clip-path: polygon(
+      0% 25%,
+      50% 0%,
+      100% 25%,
+      100% 75%,
+      50% 100%,
+      0% 75%
+    );
+    margin-top: 6px;
   }
 
   /* ===================== Pantallas medianas ===================== */
