@@ -53,6 +53,8 @@ sitio-mantenimiento/
    - No son bordes planos; son líneas que van delgadas en extremos (~2px) y más gruesas al centro (~7px).
    - Creadas con `clip-path: polygon(0 0, 2px 0, 7px 50%, 2px 100%, 0 100%)`.
    - Colores corporativos de marca: Verde (`#2d8a48`), Blanco (`#ffffff`), Rojo (`#c8202e`).
+6. **Alineación del título vertical en hover (`.slat__hover-title`):**
+   - Debe correr pegado al borde diagonal izquierdo (`left: clamp(16px, 1.2vw, 24px)`) para dejar completamente despejadas a las personas y camiones de la fotografía (evita tapar a los dueños en Rental Mining a escala 100%).
 
 ### B. Navbar Superior (`.navbar`)
 - **Desktop:** Barra flotante translúcida ubicada más abajo del borde superior:
